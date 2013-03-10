@@ -11,9 +11,13 @@
 
 @interface MWDotView : UIView
 
+- (id)initWithCenter:(CGPoint)center 
+              radius:(CGFloat)radius 
+               color:(UIColor *)color;
 
-@property (strong) UIColor *color;
-
-- (id)initWithCenter:(CGPoint)center color:(UIColor *)color;
++ (void)drawDotAtCenter:(CGPoint)center 
+                 radius:(CGFloat)radius 
+                  color:(UIColor *)color
+                stroked:(BOOL)stroked;
 
 @end

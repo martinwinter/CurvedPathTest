@@ -9,23 +9,31 @@
 #import "MWDotView.h"
 
 
-const CGFloat _radius = 15.0;
 const CGFloat _lineWidth = 3.0;
+
+
+@interface MWDotView ()
+
+@property (assign) CGFloat radius;
+@property (strong) UIColor *color;
+
+@end
 
 
 @implementation MWDotView
 
 
-- (id)initWithCenter:(CGPoint)center color:(UIColor *)color
+- (id)initWithCenter:(CGPoint)center 
+              radius:(CGFloat)radius 
+               color:(UIColor *)color
 {
-    CGRect dotFrame = CGRectMake(center.x - _radius, 
-                                 center.y - _radius, 
-                                 2 * _radius, 
-                                 2 * _radius);
+    CGRect dotFrame = [[self class] rectWithCenter:center 
+                                            radius:radius];
 
     self = [super initWithFrame:dotFrame];
     if (self)
     {
+        _radius = radius;
         _color = color;
         self.opaque = NO;
     }
@@ -36,21 +44,55 @@ const CGFloat _lineWidth = 3.0;
 
 - (id)initWithFrame:(CGRect)frame
 {
-    return [self initWithCenter:CGPointZero color:[UIColor blackColor]];
+    return [self initWithCenter:CGPointZero 
+                         radius:3.0 
+                          color:[UIColor blackColor]];
+}
+
+
++ (CGRect)rectWithCenter:(CGPoint)center 
+                  radius:(CGFloat)radius
+{
+    return CGRectMake(center.x - radius, 
+                      center.y - radius, 
+                      2 * radius, 
+                      2 * radius);
+}
+
+
++ (void)drawDotAtCenter:(CGPoint)center 
+                 radius:(CGFloat)radius 
+                  color:(UIColor *)color 
+                stroked:(BOOL)stroked 
+{
+    CGRect dotFrame = [[self class] rectWithCenter:center 
+                                            radius:radius];
+    
+    UIBezierPath *dotPath = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(dotFrame, 
+                                                                               _lineWidth / 2.0, 
+                                                                               _lineWidth / 2.0)];
+    [color set];
+    [dotPath fill];
+    
+    if (stroked)
+    {
+        [[UIColor blackColor] set];
+        [dotPath setLineWidth:_lineWidth];
+        [dotPath stroke];
+    }
 }
 
 
 - (void)drawRect:(CGRect)rect
 {
-    UIBezierPath *dotPath = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(self.bounds, 
-                                                                               _lineWidth / 2.0, 
-                                                                               _lineWidth / 2.0)];
-    [self.color set];
-    [dotPath fill];
-
-    [[UIColor blackColor] set];
-    [dotPath setLineWidth:_lineWidth];
-    [dotPath stroke];
+    // Use the center point in terms of the receiver’s local coordinate system!
+    CGPoint localCenter = [self convertPoint:self.center 
+                                    fromView:self.superview];
+    
+    [[self class] drawDotAtCenter:localCenter 
+                           radius:self.radius 
+                            color:self.color 
+                          stroked:YES];
 }
 
 
